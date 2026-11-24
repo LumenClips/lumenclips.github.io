@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lumen: clip your games</title>
+<meta name="description" content="Lumen keeps the last 30 seconds of your screen. Press F9 to save it, watch it, share it. Free for Windows.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* VOICE: plain, quick, a bit playful. Short lines, like the app.
+   IDEA: a photographer's light table. Clips are slides laid on a lit surface.
+   PICTURE: the hero is a working light table: press F9 and a new slide develops on it.
+   COLOUR and TYPE: the app's own: cool table grey, ink, one amber lamp. Barlow Semi Condensed (DIN-like, close to the app's Bahnschrift) + Barlow.
+   LAYOUT: headline, the table full width, one loud anti-bloat statement, download, a few questions. Lots of air. */
+:root{color-scheme:light dark;
+  --bg:light-dark(#EEF1F5,#161A26);--ink:light-dark(#1E2230,#EEF1F5);--mute:light-dark(#5E6579,#A3AABD);
+  --line:light-dark(#D6DBE4,#2E3446);--mount:light-dark(#fff,#F4F6FA);--table:light-dark(#F8FAFC,#20263A);
+  --lamp:#FFB300;--deep:#1E2230;--btn:light-dark(#1E2230,#FFB300);--btnInk:light-dark(#fff,#1E2230)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.55 Barlow,"Segoe UI",system-ui,sans-serif;overflow-x:clip}
+h1,h2,h3{font-family:"Barlow Semi Condensed",Bahnschrift,"Segoe UI",sans-serif;font-weight:600;line-height:1.05;margin:0;text-wrap:balance}
+a{color:inherit}
+.band{padding:clamp(28px,4vw,64px) max(5vw,16px)}
+.wrap{max-width:1240px;margin:0 auto}
+:focus-visible{outline:3px solid var(--lamp);outline-offset:3px;border-radius:8px}
+
+nav{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;padding:18px max(5vw,16px) 0;max-width:calc(1240px + 10vw);margin:0 auto}
+.brand{display:flex;align-items:center;gap:12px;text-decoration:none;font:600 26px "Barlow Semi Condensed",Bahnschrift,sans-serif}
+.lamp{width:16px;height:16px;border-radius:50%;background:var(--lamp);box-shadow:0 0 0 5px rgb(255 179 0/.22),0 0 0 10px rgb(255 179 0/.1);position:relative;flex:none}
+.lamp i{position:absolute;inset:-4px;border-radius:50%;border:2.5px solid var(--lamp);opacity:0}
+.lamp.flash i{animation:ring .9s ease-out}
+@keyframes ring{from{opacity:1;transform:scale(1)}to{opacity:0;transform:scale(4.5)}}
+nav .links{display:flex;gap:22px;align-items:center;flex-wrap:wrap}
+nav .links a{text-decoration:none;color:var(--mute);font-weight:500}
+nav .links a:hover{color:var(--ink)}
+nav .links a.btn{color:var(--btnInk)}
+.btn{display:inline-flex;align-items:center;gap:10px;min-height:48px;padding:0 22px;border-radius:10px;background:var(--btn);color:var(--btnInk);font:600 17px Barlow,sans-serif;text-decoration:none;border:0;cursor:pointer;transition:transform .15s,box-shadow .2s}
+.btn:hover{box-shadow:0 0 0 2px var(--lamp),0 8px 24px rgb(255 179 0/.25);transform:translateY(-1px)}
+.btn:active{transform:scale(.97)}
+.btn.small{min-height:40px;padding:0 16px;font-size:15px}
+.btn kbd{font:inherit;color:var(--lamp)}
+
+.hero{padding-top:clamp(36px,6vw,80px);padding-bottom:28px}
+.hero h1{font-size:clamp(44px,7.4vw,92px);letter-spacing:-.01em;max-width:12ch}
+.hero .sub{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:20px 40px;margin-top:22px}
+.hero p{font-size:clamp(18px,1.7vw,21px);color:var(--mute);max-width:34ch;margin:0}
+.hero .cta{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.hero .note{font-size:15px;color:var(--mute)}
+
+/* the light table */
+.table{position:relative;margin:0 max(2vw,8px);border-radius:28px;background:radial-gradient(120% 90% at 50% 40%,var(--table),var(--bg) 92%);border:1px solid var(--line);padding:clamp(18px,3vw,34px);overflow:hidden}
+:root .table::after{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(60% 50% at 50% 30%,light-dark(rgb(255 255 255/.7),rgb(255 210 120/.06)),transparent)}
+.bar{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;position:relative;z-index:1;margin-bottom:22px}
+.status{display:flex;align-items:center;gap:12px;color:var(--mute);font-weight:500}
+.key{display:inline-flex;align-items:center;gap:12px;background:none;border:0;cursor:pointer;color:var(--ink);font:500 16px Barlow,sans-serif;padding:4px}
+.cap{display:grid;place-items:center;min-width:58px;height:52px;padding:0 10px;border-radius:10px;background:var(--mount);color:var(--deep);font:700 20px "Barlow Semi Condensed",sans-serif;border:1px solid var(--line);box-shadow:0 5px 0 var(--line),0 7px 14px rgb(30 34 48/.12);transition:transform .08s,box-shadow .08s}
+.key:active .cap,.cap.down{transform:translateY(4px);box-shadow:0 1px 0 var(--line),0 2px 6px rgb(30 34 48/.12)}
+.slides{position:relative;z-index:1;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,210px),1fr));gap:22px}
+.slide{background:var(--mount);border-radius:14px;padding:10px 10px 12px;border:1px solid var(--line);box-shadow:0 2px 0 rgb(30 34 48/.05);color:var(--deep);transition:transform .25s cubic-bezier(.3,1.4,.5,1),box-shadow .25s}
+.slide:hover{transform:translateY(-4px);box-shadow:0 0 0 2px var(--lamp),0 0 0 9px rgb(255 179 0/.16),0 0 34px rgb(255 179 0/.28)}
+.pic{position:relative;aspect-ratio:16/9;border-radius:7px;overflow:hidden;background:#343B52}
+.pic svg{position:absolute;inset:0;width:100%;height:100%;display:block}
+.pic .dur{position:absolute;left:8px;bottom:8px;background:rgb(30 34 48/.78);color:#fff;font:600 13px Barlow,sans-serif;padding:2px 8px;border-radius:6px}
+.pic .dev{position:absolute;inset:0;background:#FFF8E1;opacity:0;pointer-events:none}
+.slide.new .dev{animation:develop 1.6s ease-out}
+@keyframes develop{from{opacity:.95}to{opacity:0}}
+.slide.new{animation:drop .5s cubic-bezier(.3,1.3,.5,1)}
+@keyframes drop{from{transform:translateY(-18px) scale(.96);opacity:0}}
+.slide b{display:block;margin-top:9px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.slide small{color:#6A7184;font-size:14px}
+.slide.hide{display:none}
+.tip{position:relative;z-index:1;margin:18px 0 0;color:var(--mute);font-size:14px}
+
+/* bloat */
+.bloat{padding-top:clamp(64px,9vw,128px);padding-bottom:clamp(48px,7vw,96px)}
+.bloat h2{font-size:clamp(42px,6.4vw,80px);max-width:14ch}
+.bloat>p{font-size:clamp(18px,1.7vw,21px);color:var(--mute);max-width:40ch;margin:22px 0 0}
+.nos{list-style:none;padding:0;margin:28px 0 0;display:flex;flex-wrap:wrap;gap:10px 28px;font:600 20px "Barlow Semi Condensed",sans-serif}
+.nos li{text-decoration:line-through;text-decoration-color:var(--lamp);text-decoration-thickness:3px}
+.three{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px 48px;margin-top:clamp(48px,7vw,88px);border-top:1px solid var(--line);padding-top:28px}
+.three h3{font-size:26px;margin-bottom:6px}
+.three p{margin:0;color:var(--mute)}
+
+/* app picture */
+.shot>p{color:var(--mute);margin:14px 0 30px;font-size:19px}
+.win{background:#EEF1F5;color:#1E2230;border-radius:16px;border:1px solid var(--line);box-shadow:0 30px 60px -30px rgb(30 34 48/.45);overflow:hidden;font-size:14px}
+.wbar{display:flex;align-items:center;gap:12px;padding:16px 22px}
+.wbar .lamp{width:12px;height:12px}
+.wbar b{font:600 20px "Barlow Semi Condensed",sans-serif}
+.wst{color:#6A7184;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wbtn{background:#1E2230;color:#fff;border-radius:8px;padding:7px 14px;font-weight:600;white-space:nowrap}.wbtn em{font-style:normal;color:#FFB300;margin-left:6px}
+.wtop{display:flex;align-items:center;gap:14px;padding:4px 22px 12px}
+.wback{border:1px solid #D6DBE4;border-radius:8px;padding:6px 12px;font-weight:600}
+.wtop b{font:600 18px "Barlow Semi Condensed",sans-serif;flex:1}.wdate{color:#6A7184}
+.wstage{margin:0 22px;border-radius:12px}
+.wctrl{display:flex;align-items:center;gap:12px;padding:16px 22px 20px;flex-wrap:wrap}
+.wctrl .play{background:#1E2230}.wctrl .play::before{border-left-color:#fff}
+.wctrl .track{flex:1;min-width:80px;background:#D6DBE4}.wctrl .track span{background:#1E2230;inset:0 60% 0 0}
+.wctrl .m{color:#6A7184}
+.wb{border:1px solid #D6DBE4;border-radius:8px;padding:7px 12px;font-weight:600;white-space:nowrap}.wb.main{background:#1E2230;color:#fff;border-color:#1E2230}
+.play{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;flex:none}
+.play::before{content:"";border-left:13px solid;border-top:8px solid transparent;border-bottom:8px solid transparent;margin-left:4px}
+.track{height:6px;border-radius:3px;position:relative}
+.track span{position:absolute;border-radius:3px}
+.track span::after{content:"";position:absolute;right:-8px;top:-5px;width:16px;height:16px;border-radius:50%;background:var(--lamp);box-shadow:0 0 0 6px rgb(255 179 0/.25)}
+@media(max-width:600px){.wst,.wb:not(.main),.wdate{display:none}}
+
+/* download */
+.get{background:var(--deep);color:#EEF1F5;border-radius:28px;margin:0 max(2vw,8px);padding:clamp(32px,5vw,64px) max(4vw,20px);display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:32px 56px;align-items:center}
+.get h2{color:#fff}
+.get .btn{background:var(--lamp);color:var(--deep);margin-top:22px}
+.get p{color:#B9C0D0;margin:12px 0 0}
+.get ol{margin:0;padding:0;list-style:none;display:grid;gap:14px;counter-reset:s}
+.get li{display:grid;grid-template-columns:36px 1fr;gap:12px;align-items:baseline;counter-increment:s;color:#D5DAE4}
+.get li::before{content:counter(s);display:grid;place-items:center;width:30px;height:30px;border-radius:50%;border:1.5px solid var(--lamp);color:var(--lamp);font-weight:600;font-size:15px}
+.get code{background:rgb(255 255 255/.08);padding:1px 6px;border-radius:5px;font-size:15px}
+
+details{border-bottom:1px solid var(--line);padding:16px 0}
+details:first-of-type{border-top:1px solid var(--line)}
+summary{cursor:pointer;font-weight:600;font-size:18px;list-style:none;display:flex;justify-content:space-between;gap:16px}
+summary::after{content:"+";color:var(--mute);font-size:22px;line-height:1;transition:transform .2s}
+details[open] summary::after{transform:rotate(45deg)}
+details p{margin:10px 0 0;color:var(--mute);max-width:64ch}
+.faq{display:grid;grid-template-columns:minmax(0,4fr) minmax(0,7fr);gap:32px}
+footer{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;color:var(--mute);font-size:15px;border-top:1px solid var(--line);padding-top:24px}
+
+@media(max-width:800px){.get,.faq{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:600px){nav .links a:not(.btn){display:none}.three{grid-template-columns:minmax(0,1fr)}.slides .slide:nth-child(n+5){display:none}.key span{display:none}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<nav>
+  <a class="brand" href="#top"><span class="lamp" id="navLamp"><i></i></span>Lumen</a>
+  <div class="links">
+    <a href="#how">Why Lumen</a>
+    <a href="#faq">Questions</a>
+    <a class="btn small" href="Lumen.zip">Download</a>
+  </div>
+</nav>
+
+<header class="band hero wrap" id="top">
+  <h1>Press F9. Keep the play.</h1>
+  <div class="sub">
+    <p>Lumen keeps the last 30 seconds of your screen. One key saves it. One click shares it.</p>
+    <div class="cta">
+      <a class="btn" href="Lumen.zip">Download for Windows</a>
+      <span class="note">Free. Windows 10 and 11.</span>
+    </div>
+  </div>
+</header>
+
+<section class="table" aria-label="Try it: a demo of Lumen's clip table">
+  <div class="bar">
+    <div class="status"><span class="lamp" id="lamp"><i></i></span><span id="stat">Recording. Press F9 to keep the last 30 seconds.</span></div>
+    <button class="key" id="key" type="button"><span class="cap" id="cap">F9</span><span>Try it: save a clip</span></button>
+  </div>
+  <div class="slides" id="slides"></div>
+  <p class="tip">Demo with made-up games.</p>
+</section>
+
+<section class="band wrap bloat" id="how">
+  <h2>Tired of bloatware?<br>Switch to Lumen.</h2>
+  <p>Most clip apps want an account, an overlay, a feed and a dozen settings. Lumen wants one key.</p>
+  <ul class="nos"><li>No account</li><li>No ads</li><li>No overlay</li><li>No feed</li><li>No uploads</li></ul>
+  <div class="three">
+    <div><h3>Clip</h3><p>Press F9. The last 30 seconds are saved, with game sound and your mic.</p></div>
+    <div><h3>Watch</h3><p>Click a clip. It plays right inside Lumen.</p></div>
+    <div><h3>Share</h3><p>Hit Share, paste it in Discord. Big clips shrink to fit.</p></div>
+  </div>
+</section>
+
+<section class="band wrap shot">
+  <h2>Watch it right here.</h2>
+  <p>Click a clip and it opens in Lumen's own player. Nothing else pops up.</p>
+  <div class="win" aria-label="Picture of Lumen's built-in player">
+    <div class="wbar"><span class="lamp"></span><b>Lumen</b><span class="wst">Recording. Press F9 to keep the last 30 seconds.</span><span class="wbtn">Save clip <em>F9</em></span></div>
+    <div class="wtop"><span class="wback">Back to clips</span><b>Neon Alley</b><span class="wdate">24 Nov, 21:43</span></div>
+    <div class="pic wstage" id="winPic"></div>
+    <div class="wctrl"><span class="play big"></span><b>0:12</b><span class="track"><span></span></span><b class="m">0:30</b><span class="wb main">Share</span><span class="wb">Rename</span><span class="wb">Turn mic off</span></div>
+  </div>
+</section>
+
+<section class="get" id="get">
+  <div>
+    <h2>Get Lumen</h2>
+    <p>Free. Small download. Works on Windows 10 and 11.</p>
+    <a class="btn" href="Lumen.zip">Download Lumen</a>
+  </div>
+  <ol>
+    <li><span>Unzip <code>Lumen.zip</code> anywhere you like.</span></li>
+    <li><span>Double-click <code>Open Lumen.bat</code>. The first time it sets itself up in a few seconds.</span></li>
+    <li><span>Lumen downloads ffmpeg once, a free video tool it records with (about 90 MB).</span></li>
+    <li><span>Play a game and press F9.</span></li>
+  </ol>
+</section>
+
+<section class="band wrap faq" id="faq">
+  <h2>Questions</h2>
+  <div>
+    <details><summary>Is it really free?</summary><p>Yes. No trial, no account, no ads.</p></details>
+    <details><summary>Will it slow my games down?</summary><p>Lumen records with your graphics card's built-in video encoder, so most games barely notice. On PCs without one it falls back to the processor, which is heavier.</p></details>
+    <details><summary>Where are my clips saved?</summary><p>In Videos\Lumen. You can pick another folder in Settings.</p></details>
+    <details><summary>Can I take my voice out of a clip?</summary><p>Yes. Your mic is saved as its own track. Click Turn mic off and only game sound plays. Changed your mind? Turn it back on. You can also rename clips.</p><p>If you hear your own voice in your headset (mic monitoring or sidetone), your voice also ends up in the game sound. Turn that off and Turn mic off works fully.</p></details>
+    <details><summary>Does Lumen track me?</summary><p>Lumen sends one tiny note when it opens and when you save a clip: a random number for your PC and the app version. No name, no clips, no screen. It only counts how many people use Lumen. Turn it off in Settings.</p></details>
+    <details><summary>Lumen is new. What if something breaks?</summary><p>Lumen is a small personal project, so tell me. Lumen checks for updates by itself and installs them in one click.</p></details>
+  </div>
+</section>
+
+<div class="band wrap" style="padding-top:0">
+  <footer>
+    <span>Lumen, a small project for gamers.</span>
+    <span>Also from the same maker: <a href="https://playprisma.github.io">Prisma</a>, better colours for your games.</span>
+  </footer>
+</div>
+
+<script>
+{
+const S=[
+ {n:"Night Drift",sky:["#1b1f4a","#e0567a"],sun:"#ffcf6b",hill:"#3a2350",fg:"#16142b",t:"road"},
+ {n:"Frostfall",sky:["#9fd0ea","#f4fbff"],sun:"#ffffff",hill:"#6f8eab",fg:"#e9f3fa",t:"peaks"},
+ {n:"Neon Alley",sky:["#120c2c","#41206e"],sun:"#ff4fa3",hill:"#24154a",fg:"#0c0820",t:"city"},
+ {n:"Dune Run",sky:["#f9d08a","#ef8a4a"],sun:"#fff1c4",hill:"#c86a34",fg:"#a24f22",t:"dunes"},
+ {n:"Deep Reef",sky:["#0f5e7d","#1fa3b5"],sun:"#bff4f0",hill:"#0b4058",fg:"#083246",t:"reef"},
+ {n:"Skyline Rush",sky:["#ff9a62","#ffd36b"],sun:"#fff6da",hill:"#7a3d4f",fg:"#4a2233",t:"city"}
+];
+let uid=0;
+function rnd(seed){let x=seed;return()=>((x=(x*16807)%2147483647)/2147483647)}
+function scene(s){
+  const u="g"+(uid++),R=rnd(s.n.length*977+uid);
+  const d=`<defs><linearGradient id="${u}s" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${s.sky[0]}"/><stop offset="1" stop-color="${s.sky[1]}"/></linearGradient>
+  <radialGradient id="${u}g"><stop offset="0" stop-color="${s.sun}" stop-opacity=".9"/><stop offset=".25" stop-color="${s.sun}" stop-opacity=".35"/><stop offset="1" stop-color="${s.sun}" stop-opacity="0"/></radialGradient>
+  <linearGradient id="${u}h" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${s.sky[1]}" stop-opacity=".0"/><stop offset="1" stop-color="${s.sky[1]}" stop-opacity=".55"/></linearGradient>
+  <radialGradient id="${u}v" cx=".5" cy=".45" r=".75"><stop offset=".6" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".45"/></radialGradient></defs>`;
+  let b=`<rect width="320" height="180" fill="url(#${u}s)"/>`;
+  const star=n=>{let o="";for(let i=0;i<n;i++)o+=`<circle cx="${R()*320|0}" cy="${R()*90|0}" r="${(R()*.9+.3).toFixed(1)}" fill="#fff" opacity="${(R()*.6+.2).toFixed(2)}"/>`;return o};
+  const glow=(x,y,r)=>`<circle cx="${x}" cy="${y}" r="${r*3.2}" fill="url(#${u}g)"/><circle cx="${x}" cy="${y}" r="${r}" fill="${s.sun}"/>`;
+  if(s.t==="road"){
+    b+=star(40)+glow(225,92,20)+`<path d="M0 110 L40 92 L80 104 L130 84 L175 100 L230 80 L280 98 L320 86 V180 H0Z" fill="${s.hill}" opacity=".7"/><rect y="100" width="320" height="80" fill="url(#${u}h)"/>
+    <path d="M0 122 Q80 104 160 116 T320 110 V180 H0Z" fill="${s.hill}"/><path d="M0 180 L150 118 L170 118 L320 180Z" fill="${s.fg}"/>
+    <path d="M159 122 v4 M158.5 132 v7 M158 147 v10 M157 166 v14" stroke="#ffcf6b" stroke-width="1.6" opacity=".8"/>
+    <path d="M118 160 q42 -30 34 -42" stroke="#ff4f6a" stroke-width="3" fill="none" opacity=".35" stroke-linecap="round"/>
+    <g transform="translate(110 150)"><path d="M0 14 q2 -9 12 -10 l8 -6 h18 l9 7 q10 1 11 9 v4 h-58z" fill="#0b0a18"/><rect x="2" y="13" width="7" height="3" rx="1" fill="#ff3d5e"/><rect x="49" y="13" width="7" height="3" rx="1" fill="#ff3d5e"/><circle cx="5" cy="15" r="7" fill="#ff3d5e" opacity=".25"/></g>`}
+  if(s.t==="peaks"){
+    b+=glow(250,40,16)+`<path d="M0 110 L50 70 L90 96 L150 50 L210 92 L260 62 L320 96 V180 H0Z" fill="${s.hill}" opacity=".45"/>
+    <path d="M0 130 L70 74 L120 112 L190 46 L260 110 L320 78 V180 H0Z" fill="${s.hill}"/><path d="M190 46 L172 64 L184 62 L192 70 L202 60 L212 66Z M70 74 L58 86 L68 84 L76 90 L84 84Z" fill="#fff"/>
+    <path d="M0 150 Q160 124 320 148 V180 H0Z" fill="${s.fg}"/>`+[20,34,46,262,276,292,304].map((x,i)=>`<path d="M${x} ${158-i%3*3} l7 -22 l7 22z" fill="#2f4a5e"/>`).join("")+
+    `<path d="M120 150 q40 -10 70 -26" stroke="#fff" stroke-width="2" fill="none" stroke-dasharray="3 3" opacity=".9"/><circle cx="191" cy="123" r="3" fill="#e0425b"/>`}
+  if(s.t==="city"){
+    b+=star(18)+glow(232,58,16);let w="";
+    [[0,70,40],[38,40,34],[70,96,28],[96,55,40],[134,104,30],[162,62,44],[204,84,30],[232,48,38],[268,92,26],[292,66,30]].forEach(([x,h,bw])=>{
+      w+=`<rect x="${x}" y="${150-h}" width="${bw}" height="${h+30}" fill="${s.hill}"/>`;
+      for(let yy=154-h;yy<142;yy+=8)for(let xx=x+4;xx<x+bw-4;xx+=7)if(R()>.55)w+=`<rect x="${xx}" y="${yy}" width="3" height="4" fill="${R()>.5?s.sun:"#7ef3ff"}" opacity="${(R()*.5+.4).toFixed(2)}"/>`});
+    b+=w+`<rect x="100" y="88" width="30" height="9" rx="2" fill="none" stroke="${s.sun}" stroke-width="1.5"/><rect x="96" y="84" width="38" height="17" rx="4" fill="${s.sun}" opacity=".18"/>
+    <rect y="150" width="320" height="30" fill="${s.fg}"/><rect x="30" y="156" width="260" height="2" fill="${s.sun}" opacity=".6"/><rect x="60" y="166" width="200" height="1.5" fill="#7ef3ff" opacity=".5"/>`;
+    for(let i=0;i<26;i++){const x=R()*320,y=R()*170;b+=`<path d="M${x.toFixed(0)} ${y.toFixed(0)} l-3 9" stroke="#bfe9ff" stroke-width=".8" opacity=".35"/>`}}
+  if(s.t==="dunes"){
+    b+=glow(110,82,30)+`<path d="M0 116 Q60 96 130 112 T260 100 T320 108 V180 H0Z" fill="${s.hill}" opacity=".6"/>
+    <path d="M0 128 Q90 98 180 124 T320 116 V180 H0Z" fill="${s.hill}"/><path d="M0 156 Q120 128 230 152 T320 146 V180 H0Z" fill="${s.fg}"/>
+    <path d="M150 150 q30 -10 60 -4" stroke="#ffe0a8" stroke-width="10" fill="none" opacity=".35" stroke-linecap="round"/>
+    <g transform="translate(206 136)"><path d="M0 10 l6 -6 h14 l6 6z" fill="#3a1a0e"/><circle cx="4" cy="12" r="4" fill="#2a120a"/><circle cx="22" cy="12" r="4" fill="#2a120a"/></g>`}
+  if(s.t==="reef"){
+    b+=[40,110,190,260].map((x,i)=>`<path d="M${x} 0 L${x+30} 0 L${x+70+i*5} 180 L${x+20} 180Z" fill="#dffcff" opacity=".07"/>`).join("")+
+    `<path d="M0 140 Q60 118 110 136 T220 128 T320 138 V180 H0Z" fill="${s.hill}"/>
+    <path d="M40 140 v-30 M50 140 v-20 M60 140 v-26 M250 134 v-36 M262 134 v-24" stroke="#ff8f6b" stroke-width="5" stroke-linecap="round"/>
+    <circle cx="150" cy="128" r="9" fill="#ffd36b"/><circle cx="162" cy="130" r="6" fill="#ff8f6b"/>
+    <g fill="#071f2c" opacity=".8"><path d="M190 70 q12 -8 24 0 q-12 8 -24 0z m24 0 l7 -5 v10z"/><path d="M96 92 q9 -6 18 0 q-9 6 -18 0z m18 0 l5 -4 v8z"/></g>`+
+    [0,1,2,3,4,5,6].map(i=>`<circle cx="${210+i*3}" cy="${60-i*9}" r="${1.2+i*.3}" fill="none" stroke="#dffcff" opacity=".6"/>`).join("")+`<rect y="160" width="320" height="20" fill="${s.fg}"/>`}
+  b+=`<rect width="320" height="180" fill="url(#${u}v)"/>`;
+  return `<svg viewBox="0 0 320 180" preserveAspectRatio="xMidYMid slice" aria-hidden="true">${d}${b}</svg>`;
+}
+const slides=document.getElementById("slides"),lamp=document.getElementById("lamp"),navLamp=document.getElementById("navLamp"),cap=document.getElementById("cap"),stat=document.getElementById("stat");
+const pad=n=>String(n).padStart(2,"0");
+let clock=new Date();clock.setHours(21,40,0,0);
+function card(s,mins,isNew){
+  const d=new Date(clock.getTime()-mins*60000);
+  const el=document.createElement("div");
+  el.className="slide"+(isNew?" new":"");
+  el.innerHTML=`<div class="pic">${scene(s)}<span class="dur">0:30</span><span class="dev"></span></div><b></b><small>${pad(d.getHours())}:${pad(d.getMinutes())}</small>`;
+  el.querySelector("b").textContent=s.n;
+  return el;
+}
+[1,2,3].forEach((k,i)=>slides.appendChild(card(S[k],(i+1)*17,false)));
+document.getElementById("winPic").innerHTML=scene(S[2]);
+let next=0,busy=false;
+function save(){
+  if(busy)return;busy=true;
+  cap.classList.add("down");setTimeout(()=>cap.classList.remove("down"),140);
+  [lamp,navLamp].forEach(l=>{l.classList.remove("flash");void l.offsetWidth;l.classList.add("flash")});
+  stat.textContent="Saving clip…";
+  setTimeout(()=>{
+    clock=new Date(clock.getTime()+3*60000);
+    const s=S[[0,4,5,2][next++%4]];
+    slides.prepend(card(s,0,true));
+    while(slides.children.length>8)slides.lastElementChild.remove();
+    stat.textContent="Clip saved: "+s.n+". Press F9 again.";
+    busy=false;
+  },450);
+}
+document.getElementById("key").addEventListener("click",save);
+addEventListener("keydown",e=>{if(e.key==="F9"){e.preventDefault();save()}});
+}
+</script>
+</body>
+</html>
